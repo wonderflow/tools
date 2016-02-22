@@ -40,20 +40,9 @@ func GetIndex(client *etcd.Client, jobname string) (int, string, error) {
 }
 */
 
-var a []int
-
-func Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
 func main() {
 
-	for i := 0; i < 5; i++ {
-		a = append(a, i)
-	}
-	Swap(1, 3)
-	for i := 0; i < 5; i++ {
-		log.Println(a[i])
-	}
-
+	// new etcd client
 	cfg := client.Config{
 		Endpoints: []string{"http://127.0.0.1:2379"},
 		Transport: client.DefaultTransport,
@@ -64,29 +53,34 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// get etcd api from client
 	kapi := client.NewKeysAPI(c)
 
-	cfgx := &Con{
+	// generate an etcd value for use,  json code
+	etcdValue := &Con{
 		XX: "hh",
 		YY: "xxxxx",
 	}
-	log.Print(cfgx)
+	log.Print(etcdValue)
+
 	// set "/foo" key with "bar" value
-	byt, err := json.Marshal(cfgx)
+	bar, err := json.Marshal(etcdValue)
 	if err != nil {
 		log.Error(err)
 	}
-	log.Print(byt)
-	str := string(byt)
+	log.Print(bar)
+	str := string(bar)
 	log.Printf("Setting '/foo' key with %v value", str)
 	resp, err := kapi.Set(context.Background(), "/xx", str, nil)
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		// print common key info
 		log.Printf("Set is done. Metadata is %q\n", resp)
 	}
-	// get "/foo" key's value
+
+	// get an etcd node value
+	// eg. get "/foo" key's value
 	log.Print("Getting '/foo' key value")
 
 	var test Con
@@ -102,32 +96,30 @@ func main() {
 	json.Unmarshal([]byte(resp.Node.Value), &test)
 	log.Printf("%v", test)
 
-	//wat := kapi.Watcher("/test", nil)
-	/*
+	// etcd watcher
+	wat := kapi.Watcher("/test", &c.WatcherOptions{AfterIndex: uint64(0)})
+	var m map[string]string
+	ch := make(chan string)
+	go func() {
 		for {
 			resp, err := wat.Next(context.Background())
 			if err != nil {
 				log.Println(err)
+				break
 			} else {
 				log.Println(resp.Node.Key, resp.Node.Value)
+				m["test"] = resp.Node.Value
+				ch <- resp.Node.Value
 			}
 		}
-	*/
-
-Lb:
-	for p := 0; p < 2; p++ {
-
-		for k := 0; k < 3; k++ {
-
-			log.Println(k)
-			for i := 0; i < 2; i++ {
-				if i == 1 {
-					continue Lb
-				}
-				log.Println(i)
-			}
-		}
+		close(ch)
+	}()
+	for v := range ch {
+		fmt.Println(v)
 	}
+
+	// more :  https://github.com/coreos/etcd/blob/master/client/keys.go
+
 	//machines := []string{"http://localhost:4001"}
 	//client := etcd.NewClient(machines)
 	/*
