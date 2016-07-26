@@ -1,29 +1,35 @@
 package main
 
 import (
+	//	"flag"
 	"flag"
 	"fmt"
-	"io"
-	"net"
-	"net/http"
-	"os"
-)
+	/*
+		"io"
+		"net"
+		"net/http"
+		"os"
+	*/)
 
 var get_ip = flag.String("get_ip", "", "external|internal")
 
 func main() {
-	fmt.Println("Usage of ./getmyip --get_ip=(external|internal)")
-	flag.Parse()
-	if *get_ip == "external" {
-		get_external()
-	}
+	/*
+		fmt.Println("Usage of ./getmyip --get_ip=(external|internal)")
+		flag.Parse()
+		if *get_ip == "external" {
+			get_external()
+		}
 
-	if *get_ip == "internal" {
-		get_internal()
-	}
-
+		if *get_ip == "internal" {
+			get_internal()
+		}
+	*/
+	
+	fmt.Println("恭喜！ 菜单符号: PandoraHAHA")
 }
 
+/*
 func get_external() {
 	resp, err := http.Get("http://myexternalip.com/raw")
 	if err != nil {
@@ -51,3 +57,4 @@ func get_internal() {
 	}
 	os.Exit(0)
 }
+*/
